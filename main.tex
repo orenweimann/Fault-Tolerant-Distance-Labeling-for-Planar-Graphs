@@ -197,7 +197,7 @@ The label of each vertex $u$ in $G$ consists of the following information:
 \begin{enumerate}[label=(\roman*)]
 \item \label{item1} the entire recursive decomposition tree $\TG$. 
 \item \label{item2} for each region $R$ in the $r$-division, the shortest path distances in $G$ from $u$ to $\partial R$ that are internally disjoint from $R$. 
-\item \label{item3} {\color{red} $R_u$ and} the $\partial R_u$-to-$\partial R_u$ distances in $G\setminus\{u\}$.\todo{I think we need this for case 1 below, e.g.~when $R_u=R_f$}
+\item \label{item3} the piece $R_u$ and the $\partial R_u$-to-$\partial R_u$ distances in $G\setminus\{u\}$.
 \item \label{item4} for each piece $P \in \TG$, the shortest path distances in $G$ from $u$ to $\partial P$ that  avoid the sibling of $P$ in $\TG$.
 \item \label{item5} for each ancestor piece $P$ of $R_u$, the shortest path distances in $P{\color{red}\setminus sibling(P)}$ from $u$ to $Sep(P){\color{red}\setminus sibling(P)}$. \todo{see attached faultylabel2 jpg}
 \end{enumerate}
@@ -209,13 +209,13 @@ Upon query $(u,v,f)$ we say that a path is a $(u,v,f)$-path if it is a $u$-to-$v
 \begin{enumerate}
 \item The shortest $(u,v,f)$-path that includes a vertex of $R_f$. 
 
-The length of this path is found with a SSSP computation on the (non-planar) graph whose vertices are $u,v$, and $\partial R_f\setminus {f}$ and whose edges are the $u$ to $\partial R_f\setminus {f}$ distances from item~\ref{item2} in $u$'s label, the $\partial R_f\setminus {f}$ to $\partial R_f\setminus {f}$ distances from item~\ref{item3} in $f$'s label, and the $\partial R_f\setminus {f}$ to $v$ distances from item~\ref{item2} in $v$'s label. 
+The length of this path is found with a SSSP computation on the (non-planar) graph whose vertices are $u,v$, and $\partial R_f\setminus {f}$ and whose edges are the $u$ to $\partial R_f\setminus {f}$ distances from item~\ref{item2} in $u$'s label (or~\ref{item3} if $R_u=R_f$), the $\partial R_f\setminus {f}$ to $\partial R_f\setminus {f}$ distances from item~\ref{item3} in $f$'s label, and the $\partial R_f\setminus {f}$ to $v$ distances from item~\ref{item2} in $v$'s label (or~\ref{item3} if $R_v=R_f$). 
 
-\item The shortest $(u,v,f)$-path that avoids $R_f$ but includes a {\color{red}boundary} vertex of some piece on the {\color{red}$x$}-to-$R_f$ path in $\TG$. \todo{see attached faultylabel jpg}
+\item The shortest $(u,v,f)$-path that avoids $R_f$ but includes a boundary vertex of some piece on the {\color{red}$x$}-to-$R_f$ path in $\TG$. \todo{see attached faultylabel jpg}
 
 The length of this path is found with a SSSP computation on the graph whose vertices are $u,v$, and $\partial P$ of all nodes   $P$ that are siblings of some node on the $y$-to-$R_f$ path in $\TG$. The edges are the $u$-to-$\partial P$ distances from item~\ref{item4} in $u$'s label and the $\partial P$-to-$v$ distances from item~\ref{item4} in $v$'s label.
 
-\item The shortest $(u,v,f)$-path that avoids all {\color{red}boundary vertices of all} the pieces on the {\color{red}$x$}-to-$R_f$ path in $\TG$. 
+\item The shortest $(u,v,f)$-path that avoids all boundary vertices of all the pieces on the {\color{red}$x$}-to-$R_f$ path in $\TG$. 
 
 This is required only for the case where the subtree of $\TG$ rooted at the lowest common ancestor of $u$ and $v$ does not contain $f$.\todo{It may still contain $f$, but not $R_f$, right?} The length of this path is found with a SSSP computation on the graph whose vertices are $u,v$, and $Sep(P)$ of all nodes   $P$ on the $y$-to-$R_u$ path in $\TG$. The edges are the $u$-to-$Sep(P)$ distances from item~\ref{item5} in $u$'s label and the $Sep(P)$-to-$v$ distances from item~\ref{item5} in $v$'s label. {\color{red}(Also case $R_u=R_v$.)}
 \end{enumerate}
