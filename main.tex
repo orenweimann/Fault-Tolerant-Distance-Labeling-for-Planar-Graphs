@@ -1,0 +1,235 @@
+\documentclass[11pt]{article}
+
+\usepackage{fullpage}
+\usepackage{amsthm,amssymb,amsmath}  
+\usepackage{xspace,enumerate}
+\usepackage[utf8]{inputenc}
+\usepackage{thmtools}
+\usepackage{thm-restate}
+\usepackage{authblk}
+\usepackage[hypertexnames=false,colorlinks=true,urlcolor=Blue,citecolor=Green,linkcolor=BrickRed]{hyperref}
+ 
+\newcommand{\myparagraph}[1]{\paragraph{#1.}}
+
+  \theoremstyle{plain}
+  \newtheorem{theorem}{Theorem}
+  \newtheorem{lemma}[theorem]{Lemma}  
+  \newtheorem{corollary}[theorem]{Corollary}  
+  \newtheorem{proposition}[theorem]{Proposition}  
+  \newtheorem{fact}[theorem]{Fact}
+  \newtheorem{observation}[theorem]{Observation}
+  \newtheorem{definition}[theorem]{Definition}
+  \newtheorem{example}[theorem]{Example}
+  \newtheorem{remark}[theorem]{Remark}
+ 
+  \newtheorem*{claim}{Claim}
+ 
+
+\author[1,2]{Panagiotis Charalampopoulos}
+\author[3]{Paweł Gawrychowski}
+\author[2]{Shay Mozes}
+\author[4]{Oren Weimann}
+
+
+\affil[1]{
+Department of Informatics, King's College London, UK\\
+\href{mailto:panagiotis.charalampopoulos@kcl.ac.uk}{panagiotis.charalampopoulos@kcl.ac.uk}}
+
+\affil[2]{
+Efi Arazi School of Computer Science, The Interdisciplinary Center Herzliya, Israel\\
+\href{mailto:smozes@idc.ac.il}{smozes@idc.ac.il}}
+
+\affil[3]{
+Institute of Computer Science, University of Wrocław, Poland\\
+\href{mailto:gawry@mimuw.edu.pl}{gawry@mimuw.edu.pl}}
+
+\affil[4]{
+Department of Computer Science, University of Haifa, Israel\\
+\href{mailto:oren@cs.haifa.ac.il}{oren@cs.haifa.ac.il}
+}
+
+
+\date{\vspace{-5ex}}
+
+
+\usepackage[dvipsnames,usenames]{color}
+
+
+\usepackage[ruled]{algorithm}
+\usepackage[noend]{algpseudocode}
+\algnewcommand{\LineComment}[1]{\State \(\triangleright\) #1}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage[noadjust]{cite}
+  \usepackage{microtype}
+    \usepackage{xspace}
+    \usepackage{amsmath,amsfonts}
+    \usepackage{wasysym}
+  \usepackage{makecell}
+  \usepackage{tabularx}
+  \usepackage{comment}
+  \usepackage{todonotes}
+  \usepackage{thmtools}
+  \usepackage{thm-restate}
+  \usepackage[capitalise]{cleveref}
+  \usepackage{verbatim}
+\usepackage{units}
+\usepackage{color}
+\definecolor{darkblue}{rgb}{0,0.08,0.45}
+  \usepackage{epsfig}
+    \usepackage{graphics}
+\usepackage{pgf,tikz}
+  \usetikzlibrary{trees, arrows, shapes, snakes}
+\usepackage{marvosym}
+  \usepackage[caption=false]{subfig}
+\usetikzlibrary{decorations.pathmorphing}
+\usetikzlibrary{decorations.markings}
+\usetikzlibrary{decorations.pathmorphing,shapes}
+\usetikzlibrary{calc,decorations.pathmorphing,shapes}
+\usepackage{subfig}
+\usepackage{booktabs}
+\usepackage{etoolbox}
+\usepackage[title]{appendix}
+\usepackage{enumitem}
+
+
+\newif\iffull
+\fulltrue
+
+\newif\ifspreport
+\spreporttrue
+
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclareMathOperator*{\argmin}{argmin}
+
+\newcommand{\cO}{\mathcal{O}}
+\newcommand{\TG}{\mathcal{T}}
+\newcommand{\cOtilde}{\tilde{\cO}}
+\newcommand{\Vor}{\textsf{Vor}}
+\newcommand{\VD}{\textsf{VD}}
+\newcommand{\out}[1]{#1^{out}}
+\newcommand{\VDin}{\textsf{VD}_{in}}
+\newcommand{\VDout}{\textsf{VD}_{out}}
+\newcommand{\weight}{{\rm \omega}}
+
+
+\begin{document}
+
+\title{Fault-Tolerant Distance Labeling for Planar Graphs\thanks{This work was partially supported by the Israel Science Foundation under grant number 592/17.}}
+\maketitle
+
+%\thispagestyle{empty}
+
+\begin{abstract}
+In fault-tolerant distance labeling we wish to assign short labels to the vertices of a graph $G$ such that from the labels of any three vertices $u,v,w$ we can infer the $u$-to-$v$ distance in the graph $G\setminus \{w\}$. We show that any directed weighted planar graph admits labels of size $\cOtilde(n^{2/3})$. \todo{multiple faults, approximate distance labeling (improve query time in Chechick et al from $\cOtilde(|F|^2)$ to $\cOtilde(|F|)$}
+\end{abstract}
+
+
+%\clearpage
+%\setcounter{page}{1}
+
+\section{Introduction}
+
+\paragraph{Exact distances.}
+
+The replacement paths problem (i.e.~when both the source and destination are fixed in advance) can be solved in nearly linear time~\cite{DBLP:journals/talg/EmekPR10,DBLP:journals/talg/KleinMW10,DBLP:conf/soda/Wulff-Nilsen10}.
+For the single source, single failure version of the problem (i.e.~when the source vertex is fixed at construction time, and the query specifies just the target and a single failed vertex), Baswana et al.~\cite{DBLP:conf/soda/BaswanaLM12} presented an oracle with size and construction time $\cO(n \log^4 n)$ that answers queries in $\cO(\log^3 n)$ time. 
+They then showed an oracle of size $\cOtilde(n^2/q)$ for the general single failure problem (i.e.~when the source, destination, and failed vertex are all specified at query time), that answers queries in time $\cOtilde(q)$ for any $q \in [1,n^{1/2}]$.
+
+
+Fakcharoenphol and Rao~\cite{FR} presented distance oracles that require $\cOtilde(n^{2/3})$ and $\cOtilde(n^{4/5})$  amortized time per update and query for non-negative and arbitrary edge-weight updates respectively.\footnote{Though this is not mentioned in~\cite{FR}, the query time can be made worst case rather than amortized by standard techniques.} The space required by these oracles is $\cO(n \log n)$.
+Klein presented a similar data structure in~\cite{MSSP} for the case where edge-weight updates are non-negative, requiring time $\cOtilde(n^{2/3} )$.
+Kelin's result was extended in~\cite{DBLP:conf/stoc/ItalianoNSW11}, where, assuming non-negativity of edge-weight updates, the authors showed how to handle edge deletions and insertions (not violating the planarity of the embedding), and in~\cite{DBLP:journals/talg/KaplanMNS17}, where the authors showed how to handle negative edge-weight updates, all within the same time complexity.
+In fact, these results can all be combined, and along with a recent slight improvement on the running time of FR-Dijkstra~\cite{DBLP:conf/icalp/GawrychowskiK18}, they yield a dynamic distance oracle that can handle any of the aforementioned edge updates and queries within time $\cOtilde(n^{2/3})$.
+
+Shay and Panos SODA'19 paper~\cite{CharalampopoulosMozesTebeka}: Show how to construct in $\cOtilde(n)$ time an oracle of size $\cOtilde(n)$ that, given a source vertex $u$, a target vertex $v$, and a set $F$ of $k$ failing vertices, reports the length of a shortest $u$-to-$v$ path in $G \setminus F$ in  $\cOtilde(\sqrt{k n})$ time.  They further showed that for any $r \in [1,n]$ an $\cOtilde(\frac{n^{k+1}}{r^{k+1}} \sqrt{nr})$-size oracle that answers queries in time $\cOtilde(k\sqrt{r})$. 
+
+
+All the above are oracles (not labeling). For distance labeling without faults, there is a tight $\tilde{\Theta}(n^{1/2})$ upper and lower bound for the label of weighted planar graphs. For unweighted undirected planar graphs, a famous open question is to close the rare \emph{polynomial} gap that has been open since the work of Gavoile et al. \cite{GPPR04}: the upper bound is $O(n^{1/2})$ bits per label (due to \cite{GawrychowskiU16} who shaved a log factor over \cite{GPPR04}), and the lower bound is $\Omega(n^{1/3})$.
+ 
+
+\paragraph{Approximate distances.}
+
+For the case where one is willing to settle for approximate distances, Abraham et al.~\cite{DBLP:conf/stoc/AbrahamCG12} gave a $(1+\epsilon)$ labeling scheme for undirected planar graphs with polylogarithmic size labels, such that a $(1+\epsilon)$-approximation of the distance between vertices $u$ and $v$ in the presence of $|F|$ vertex or edge failures can be recovered from the labels of $u,v$ and the labels of the failed vertices in $\cOtilde(|F|^2)$ time. 
+In \cref{sec:approx} we show how to improve the query time to $\cOtilde(|F|)$.
+
+
+
+\section{Preliminaries} \label{sec:prelim}
+
+Throughout the paper we consider as input a weighted directed planar graph $G$, embedded in the plane.
+We assume that the input graph has no negative length cycles.
+We can transform the graph in a standard~\cite{DBLP:conf/esa/MozesW10} way so that all edge weights are non-negative and distances are preserved.
+With another standard transformation we can guarantee, in $\cO(n \frac{\log^2 n}{\log \log n})$ time, that each vertex has constant degree and that the graph is triangulated, while distances are preserved and without increasing asymptotically the size of the graph.
+%We further assume that shortest paths are unique; this can be ensured in $\cO(n)$ time by a deterministic perturbation of the edge weights~\cite{DBLP:conf/stoc/0001FL18}.
+%Let $d_G(u,v)$ denote the distance from a vertex $u$ to a vertex $v$ in $G$.
+
+\paragraph{Separators and recursive decompositions.}
+Miller~\cite{DBLP:conf/stoc/Miller84} showed how to compute, in a biconnected triangulated planar graph $G$ with $n$ vertices, a simple cycle $Sep(G)$ of size $\cO(\sqrt{n})$ that separates the graph into two subgraphs, each with at most $2n/3$ vertices. Simple cycle separators can be used to recursively separate a planar graph until pieces have constant size.
+The authors of~\cite{DBLP:conf/stoc/KleinMS13} show how to obtain a complete recursive decomposition tree $\TG$ of $G$ in $\cO(n)$ time. 
+$\TG$ is a binary tree whose nodes correspond to subgraphs of $G$ (called {\em pieces}), with the root being all of $G$ and the leaves being pieces of constant size.
+We identify each piece $P$ with the node representing it in $\TG$. We can thus abuse notation and write $P\in \TG$.
+An $r$-division~\cite{DBLP:journals/siamcomp/Frederickson87} of a planar graph, for $r \in [1,n]$, is a decomposition of the graph into $\cO(n/r)$ pieces, each of size $\cO(r)$, such that each piece $P$ has $\cO(\sqrt{r})$ boundary vertices (denoted  $\partial P$) i.e.~vertices that belong to some separator along the recursive decomposition used to obtain $P$.
+Another desired property of an $r$-division is that the boundary vertices lie on a constant number of faces  (called holes) of the piece.
+For every $r$ larger than some constant, an $r$-division with few holes is represented in the decomposition tree $\TG$ of~\cite{DBLP:conf/stoc/KleinMS13}. It is convenient to describe the $r$-division by truncating $\TG$ at pieces of size $O(r)$. We refer to those pieces (the leaves of $\TG$ after truncation) as {\em regions} and denote by $R_u$ the region containing vertex $u$ (if $u$ belongs to multiple regions we arbitrarily designate one of them as $R_u$).
+ 
+%In fact, it is not hard to see that if the original graph $G$ is triangulated then all vertices of each hole of a piece are boundary vertices. 
+%Throughout the paper, to avoid confusion, we use ``nodes" when referring to $\TG$ and ``vertices" when referring to $G$.
+%We denote the boundary vertices of a piece $P$ by $\partial P$. 
+%We refer to non-boundary vertices as internal.
+%We assume for simplicity that each hole is a simple cycle. Non-simple cycles do not pose a significant obstacle, as we discuss  at the end of~\cref{sec:onehole}.
+%
+%It is shown in~\cite[Theorem 3]{DBLP:conf/stoc/KleinMS13} that, given a geometrically decreasing sequence of numbers $(r_m, r_{m-1}, \ldots, r_1)$, where $r_1$ is a sufficiently large constant, $r_{i+1}/r_i=b$ for all $i$ for some $b>1$, and $r_m=n$, we can obtain the $r_i$-divisions for all $i$ in time $\cO(n)$ in total.
+%For convenience we define the only piece in the $r_m$ division to be $G$ itself.
+%These $r$-divisions satisfy the property that a piece in the $r_i$-division is a ---not necessarily strict--- descendant (in $\TG$) of a piece in the $r_j$-division for each $j>i$. This ancestry relation between the pieces of an $r$-division can be captures by a tree $\TG$ called the recursive $r$-division tree.
+
+%The boundary vertices of a piece $P \in \TG$ that lie on a hole $h$ of $P$ separate the graph $G$ into two subgraphs $G_1$ and $G_2$ (the cycle is in both subgraphs). One of these two subgraphs is enclosed by the cycle and the other is not. Moreover, $P$ is a subgraph of one of these two subgraphs, say $G_1$. We then call $G_2$ the outside of hole $h$ with respect to $P$. %and denote it by $P^{h,out}$.
+%In the sections where we assume that the boundary vertices of each piece lie on a single hole that is a simple cycle, the outside of this hole with respect to $P$ is $G\setminus(P \setminus \partial P)$ and is denoted by $\out{P}$. 
+
+
+\section{Exact Distance Labeling}\label{sec:exact}
+
+Recall that an $r$-division is represented by a decomposition tree $\TG$. The root of $\TG$ corresponds to $G$. The internal   nodes of $\TG$ correspond to pieces of $G$, the two children of a piece $P\in \TG$ are the subgraphs external and internal to $Sep(P)$. The leaves of $\TG$ are the regions of the $r$-division.  
+
+\paragraph{The label.}
+The label of each vertex $u$ in $G$ consists of the following information:
+\begin{enumerate}[label=(\roman*)]
+\item \label{item1} the entire recursive decomposition tree $\TG$. 
+\item \label{item2} for each region $R$ in the $r$-division, the shortest path distances in $G$ from $u$ to $\partial R$ that are internally disjoint from $R$. 
+\item \label{item3} {\color{red} $R_u$ and} the $\partial R_u$-to-$\partial R_u$ distances in $G\setminus\{u\}$.\todo{I think we need this for case 1 below, e.g.~when $R_u=R_f$}
+\item \label{item4} for each piece $P \in \TG$, the shortest path distances in $G$ from $u$ to $\partial P$ that  avoid the sibling of $P$ in $\TG$.
+\item \label{item5} for each ancestor piece $P$ of $R_u$, the shortest path distances in $P{\color{red}\setminus sibling(P)}$ from $u$ to $Sep(P){\color{red}\setminus sibling(P)}$. \todo{see attached faultylabel2 jpg}
+\end{enumerate}
+ 
+\noindent The overall space required by the above five items is $O(n/r + (n/r)\sqrt{r} + r + n/\sqrt{r} + \sqrt{n})$ which is $O(n^{2/3})$ by choosing $r = n^{2/3}$.
+
+\paragraph{The query.}
+Upon query $(u,v,f)$ we say that a path is a $(u,v,f)$-path if it is a $u$-to-$v$ path in $G$ that avoids $f$, and we seek the shortest such path. Let $x$ denote the lowest node in $\TG$ that is an ancestor of $f$ and of at least one of $\{u,v\}$. Assume w.l.o.g that $x$ is an ancestor of $u$, and let $y$ denote the child of $x$ on the $x$-to-$R_f$ path in $\TG$. We return the minimum of the following three:    
+\begin{enumerate}
+\item The shortest $(u,v,f)$-path that includes a vertex of $R_f$. 
+
+The length of this path is found with a SSSP computation on the (non-planar) graph whose vertices are $u,v$, and $\partial R_f\setminus {f}$ and whose edges are the $u$ to $\partial R_f\setminus {f}$ distances from item~\ref{item2} in $u$'s label, the $\partial R_f\setminus {f}$ to $\partial R_f\setminus {f}$ distances from item~\ref{item3} in $f$'s label, and the $\partial R_f\setminus {f}$ to $v$ distances from item~\ref{item2} in $v$'s label. 
+
+\item The shortest $(u,v,f)$-path that avoids $R_f$ but includes a {\color{red}boundary} vertex of some piece on the {\color{red}$x$}-to-$R_f$ path in $\TG$. \todo{see attached faultylabel jpg}
+
+The length of this path is found with a SSSP computation on the graph whose vertices are $u,v$, and $\partial P$ of all nodes   $P$ that are siblings of some node on the $y$-to-$R_f$ path in $\TG$. The edges are the $u$-to-$\partial P$ distances from item~\ref{item4} in $u$'s label and the $\partial P$-to-$v$ distances from item~\ref{item4} in $v$'s label.
+
+\item The shortest $(u,v,f)$-path that avoids all {\color{red}boundary vertices of all} the pieces on the {\color{red}$x$}-to-$R_f$ path in $\TG$. 
+
+This is required only for the case where the subtree of $\TG$ rooted at the lowest common ancestor of $u$ and $v$ does not contain $f$.\todo{It may still contain $f$, but not $R_f$, right?} The length of this path is found with a SSSP computation on the graph whose vertices are $u,v$, and $Sep(P)$ of all nodes   $P$ on the $y$-to-$R_u$ path in $\TG$. The edges are the $u$-to-$Sep(P)$ distances from item~\ref{item5} in $u$'s label and the $Sep(P)$-to-$v$ distances from item~\ref{item5} in $v$'s label. {\color{red}(Also case $R_u=R_v$.)}
+\end{enumerate}
+
+
+\paragraph{Correctness.}
+
+
+
+\todo{multiple faults}
+
+\section{Approximate Distance Labeling}\label{sec:approx}
+In this section we show how to improve the query time in~\cite{DBLP:conf/stoc/AbrahamCG12} from $\cOtilde(|F|^2)$ to $\cOtilde(|F|)$.
+
+\bibliographystyle{plain}
+\bibliography{references}
+\end{document}
